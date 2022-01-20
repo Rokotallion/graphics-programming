@@ -24,8 +24,6 @@ function particles() {
       Math.random() * 600 - 300,
       Math.random() * 600 - 300
     );
-    star.velocity = 0;
-    star.acceleration = 0.02;
     points.push(star);
   }
 
@@ -33,7 +31,7 @@ function particles() {
 
   let sprite = new THREE.TextureLoader().load("assets/images/star.png");
   let starMaterial = new THREE.PointsMaterial({
-    color: 0xaaaaaa,
+    color: 0xffb6c1,
     size: 0.7,
     map: sprite,
   });
@@ -43,15 +41,6 @@ function particles() {
 }
 
 function animateParticles() {
-    starGeo.attributes.position.array.forEach((p) => {
-      p.velocity += p.acceleration;
-      p.y -= p.velocity;
-  
-      if (p.y < -200) {
-        p.y = 200;
-        p.velocity = 0;
-      }
-    });
     starGeo.verticesNeedUpdate = true;
     stars.position.y -= 0.9;
   }
