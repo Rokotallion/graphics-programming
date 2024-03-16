@@ -1,3 +1,7 @@
+import * as THREE from "./three.module.js";
+import { TextGeometry } from './TextGeometry.js';
+import { FontLoader } from './FontLoader.js';
+
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -8,12 +12,14 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-let cubeMesh = new THREE.Mesh();
+let textMesh = new THREE.Mesh();
 let stars, starGeo;
 
 lighting();
-cube();
+text();
 particles();
+
+setInterval(randColor, 3000);
 
 function particles() {
   const points = [];
@@ -29,36 +35,57 @@ function particles() {
 
   starGeo = new THREE.BufferGeometry().setFromPoints(points);
 
-  let sprite = new THREE.TextureLoader().load("assets/images/star.png");
+  let sprite = new THREE.TextureLoader().load("./assets/images/star.png");
   let starMaterial = new THREE.PointsMaterial({
-    color: 0xffb6c1,
     size: 0.7,
     map: sprite,
   });
 
   stars = new THREE.Points(starGeo, starMaterial);
+  stars.material.color.setRGB(Math.random(256), Math.random(256), Math.random(256));
   scene.add(stars);
+}
+
+function randColor(){
+  stars.material.color.setRGB(Math.random(256), Math.random(256), Math.random(256));
 }
 
 function animateParticles() {
     starGeo.verticesNeedUpdate = true;
     stars.position.y -= 0.9;
+
+    if (stars.position.y < -200){
+      stars.position.y = 100;
+    }
   }
 
-function cube() {
-  const texture = new THREE.TextureLoader().load("assets/textures/wooden.jpg");
-  const cubeMaterial = new THREE.MeshBasicMaterial({ map: texture });
-  const cubeGeometry = new THREE.BoxGeometry(10, 5, 5, 5);
-  cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
+function text() {
+  const fontLoader = new FontLoader();
+  
+  fontLoader.load( './assets/fonts/helvetiker_bold.typeface.json', function ( font ) {
+    const texture = new THREE.TextureLoader().load("./assets/textures/wooden.jpg");
 
-  cubeMesh.position.z = -5;
+    const textGeometry = new TextGeometry( 'Kenichi', {
+        font: font,
+        size: 3,
+        height: 1,
+    } );
+    textGeometry.center();
+    
+    const textMaterial = new THREE.MeshPhongMaterial({ map: texture, specular: 'blue'});
+
+    textMesh = new THREE.Mesh(textGeometry, textMaterial);
+    textMesh.position.z = -5;
+    console.log(textMesh);
+
+    scene.add(textMesh);
+  } );
+
   camera.position.z = 15;
-
-  scene.add(cubeMesh);
 }
 
 function lighting() {
-  const light = new THREE.HemisphereLight(0x780a44, 0x1c3020, 1);
+  const light = new THREE.HemisphereLight(0x780a44, 0x1c3020, 12);
   scene.add(light);
 
   const spotLight = new THREE.SpotLight(0xffffff);
@@ -77,8 +104,8 @@ function animate() {
 
   animateParticles();
 
-  cubeMesh.rotation.x += 0.008;
-  cubeMesh.rotation.y += 0.008;
+  textMesh.rotation.x += 0.008;
+  textMesh.rotation.y += 0.008;
   renderer.render(scene, camera);
 }
 
